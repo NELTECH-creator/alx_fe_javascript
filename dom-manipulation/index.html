@@ -9,48 +9,26 @@
   <h1>Dynamic Quote Generator</h1>
 
   <div class="card">
+    <!-- Category Filter -->
     <div class="row">
-      <label for="categoryFilter">Category:</label>
-      <select id="categoryFilter">
-        <option value="all">All Categories</option>
-      </select>
-
-      <button id="newQuote">Show New Quote</button>
-      <button id="showLast" class="muted">Show Last Viewed (session)</button>
+      <label for="categoryFilter">Filter by Category:</label>
+      <select id="categoryFilter"></select>
+      <button id="showQuoteBtn">Show Random Quote</button>
+      <button id="showAllBtn" class="muted">Show All Quotes</button>
     </div>
 
-    <hr />
+    <!-- Quote Display -->
+    <div id="quoteDisplay"><em>Select a category or show all quotes</em></div>
 
-    <div id="quoteDisplay">
-      <em>Click "Show New Quote" to start</em>
-    </div>
-
-    <hr />
-
-    <div>
-      <h3>Add a New Quote</h3>
-      <div class="row">
-        <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
-        <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
-        <button id="addQuoteBtn">Add Quote</button>
-      </div>
-    </div>
-
-    <hr />
-
-    <div>
-      <h3>Import / Export Quotes (JSON)</h3>
-      <div class="row controls">
-        <input type="file" id="importFile" accept=".json" />
-        <button id="importBtn" class="muted">Import Selected File</button>
-        <button id="exportBtn">Export Quotes (Download JSON)</button>
-        <button id="clearStorageBtn" class="danger">Clear Local Storage</button>
-      </div>
-      <div id="importFeedback" style="margin-top:8px;color:#444"></div>
+    <!-- Add New Quote -->
+    <hr/>
+    <h3>Add a New Quote</h3>
+    <div class="row">
+      <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
+      <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+      <button id="addQuoteBtn">Add Quote</button>
     </div>
   </div>
-
-  <footer>Quotes are saved to <strong>localStorage</strong>. Last viewed quote stored in <strong>sessionStorage</strong>. </footer>
 
   <script src="script.js"></script>
 </body>
