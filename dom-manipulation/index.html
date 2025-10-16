@@ -7,8 +7,51 @@
 </head>
 <body>
   <h1>Dynamic Quote Generator</h1>
-  <div id="quoteDisplay"></div>
-  <button id="newQuote">Show New Quote</button>
+
+  <div class="card">
+    <div class="row">
+      <label for="categoryFilter">Category:</label>
+      <select id="categoryFilter">
+        <option value="all">All Categories</option>
+      </select>
+
+      <button id="newQuote">Show New Quote</button>
+      <button id="showLast" class="muted">Show Last Viewed (session)</button>
+    </div>
+
+    <hr />
+
+    <div id="quoteDisplay">
+      <em>Click "Show New Quote" to start</em>
+    </div>
+
+    <hr />
+
+    <div>
+      <h3>Add a New Quote</h3>
+      <div class="row">
+        <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
+        <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+        <button id="addQuoteBtn">Add Quote</button>
+      </div>
+    </div>
+
+    <hr />
+
+    <div>
+      <h3>Import / Export Quotes (JSON)</h3>
+      <div class="row controls">
+        <input type="file" id="importFile" accept=".json" />
+        <button id="importBtn" class="muted">Import Selected File</button>
+        <button id="exportBtn">Export Quotes (Download JSON)</button>
+        <button id="clearStorageBtn" class="danger">Clear Local Storage</button>
+      </div>
+      <div id="importFeedback" style="margin-top:8px;color:#444"></div>
+    </div>
+  </div>
+
+  <footer>Quotes are saved to <strong>localStorage</strong>. Last viewed quote stored in <strong>sessionStorage</strong>. </footer>
+
   <script src="script.js"></script>
 </body>
 </html>
