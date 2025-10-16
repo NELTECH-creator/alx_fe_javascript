@@ -155,38 +155,50 @@ const syncStatus = document.getElementById('syncStatus');
 
 let quotes = JSON.parse(localStorage.getItem('quotes')) || [];
 
-// --- Fetch Quotes from "Server" ---
+// --- Show a random quote ---
+function showRandomQuote() {
+  if (quotes.length === 0) {
+    quoteDisplay.textContent = 'No quotes available.';
+    return;
+  }
+  const randomIndex = Math.floor(Math.random() * quotes.length);
+  const { text, category } = quotes[randomIndex];
+  quoteDisplay.textContent = `"${text}" — ${category}`;
+}
+
+// --- Fetch quotes from server ---
 async function fetchQuotesFromServer() {
   syncStatus.textContent = 'Fetching latest quotes from server...';
-  
   try {
     const response = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=5');
     const serverQuotes = await response.json();
-    
-    // Convert server posts into quote-like objects
+
     const formattedQuotes = serverQuotes.map(q => ({
       text: q.title,
       category: 'Server Sync'
     }));
 
     // Conflict resolution: server data takes precedence
-    quotes = [...formattedQuotes, ...quotes.filter(localQ => 
-      !formattedQuotes.some(serverQ => serverQ.text === localQ.text)
-    )];
-    
+    const mergedQuotes = [
+      ...formattedQuotes,
+      ...quotes.filter(localQ => !formattedQuotes.some(serverQ => serverQ.text === localQ.text))
+    ];
+
+    // Save merged data locally
+    quotes = mergedQuotes;
     localStorage.setItem('quotes', JSON.stringify(quotes));
-    syncStatus.textContent = '✅ Sync complete. Server data updated.';
+
+    syncStatus.textContent = '✅ Sync complete (Server data merged)';
     showRandomQuote();
   } catch (error) {
-    syncStatus.textContent = '❌ Sync failed. Check your connection.';
+    syncStatus.textContent = '❌ Failed to sync (Network issue)';
     console.error(error);
   }
 }
 
-// --- Upload Local Quotes to Server (Simulation) ---
+// --- Upload quotes to server ---
 async function uploadQuotesToServer() {
-  syncStatus.textContent = 'Uploading local quotes to server...';
-  
+  syncStatus.textContent = 'Uploading local quotes...';
   try {
     const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
       method: 'POST',
@@ -195,9 +207,9 @@ async function uploadQuotesToServer() {
     });
 
     if (response.ok) {
-      syncStatus.textContent = '✅ Local quotes synced to server successfully!';
+      syncStatus.textContent = '✅ Local quotes uploaded successfully!';
     } else {
-      throw new Error('Server upload failed');
+      throw new Error('Upload failed');
     }
   } catch (error) {
     syncStatus.textContent = '❌ Upload failed.';
@@ -205,11 +217,38 @@ async function uploadQuotesToServer() {
   }
 }
 
-// --- Trigger Sync ---
+// --- Conflict resolution helper ---
+function resolveConflicts(serverQuotes) {
+  let conflicts = 0;
+  const resolved = serverQuotes.map(sq => {
+    const conflict = quotes.find(lq => lq.text === sq.text);
+    if (conflict) conflicts++;
+    return sq;
+  });
+  if (conflicts > 0) {
+    alert(`${conflicts} conflicts resolved automatically using server data.`);
+  }
+  return resolved;
+}
+
+// --- Manual sync trigger ---
 syncButton.addEventListener('click', async () => {
   await uploadQuotesToServer();
   await fetchQuotesFromServer();
 });
+
+// --- Periodic auto-sync every 30 seconds (simulation) ---
+setInterval(async () => {
+  console.log('Auto-syncing with server...');
+  await fetchQuotesFromServer();
+}, 30000); // 30 seconds interval
+
+// --- Initialize ---
+document.addEventListener('DOMContentLoaded', () => {
+  showRandomQuote();
+  fetchQuotesFromServer();
+});
+
 
 function resolveConflicts(serverQuotes) {
   let conflicts = 0;
