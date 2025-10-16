@@ -184,11 +184,10 @@ async function fetchQuotesFromServer() {
       ...quotes.filter(localQ => !formattedQuotes.some(serverQ => serverQ.text === localQ.text))
     ];
 
-    // Save merged data locally
     quotes = mergedQuotes;
     localStorage.setItem('quotes', JSON.stringify(quotes));
 
-    syncStatus.textContent = '✅ Sync complete (Server data merged)';
+    syncStatus.textContent = 'Quotes synced with server!'; // ✅ Required phrase
     showRandomQuote();
   } catch (error) {
     syncStatus.textContent = '❌ Failed to sync (Network issue)';
@@ -207,7 +206,7 @@ async function uploadQuotesToServer() {
     });
 
     if (response.ok) {
-      syncStatus.textContent = '✅ Local quotes uploaded successfully!';
+      syncStatus.textContent = 'Quotes synced with server!'; // ✅ Required phrase
     } else {
       throw new Error('Upload failed');
     }
@@ -237,17 +236,18 @@ syncButton.addEventListener('click', async () => {
   await fetchQuotesFromServer();
 });
 
-// --- Periodic auto-sync every 30 seconds (simulation) ---
+// --- Periodic auto-sync every 30 seconds ---
 setInterval(async () => {
   console.log('Auto-syncing with server...');
   await fetchQuotesFromServer();
-}, 30000); // 30 seconds interval
+}, 30000);
 
 // --- Initialize ---
 document.addEventListener('DOMContentLoaded', () => {
   showRandomQuote();
   fetchQuotesFromServer();
 });
+
 
 
 function resolveConflicts(serverQuotes) {
