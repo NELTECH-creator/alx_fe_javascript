@@ -148,3 +148,78 @@ addQuoteBtn.addEventListener("click", addQuote);
 
 // ===== RUN APP =====
 init();
+
+const quoteDisplay = document.getElementById('quoteDisplay');
+const syncButton = document.getElementById('syncQuotes');
+const syncStatus = document.getElementById('syncStatus');
+
+let quotes = JSON.parse(localStorage.getItem('quotes')) || [];
+
+// --- Fetch Quotes from "Server" ---
+async function fetchQuotesFromServer() {
+  syncStatus.textContent = 'Fetching latest quotes from server...';
+  
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts?_limit=5');
+    const serverQuotes = await response.json();
+    
+    // Convert server posts into quote-like objects
+    const formattedQuotes = serverQuotes.map(q => ({
+      text: q.title,
+      category: 'Server Sync'
+    }));
+
+    // Conflict resolution: server data takes precedence
+    quotes = [...formattedQuotes, ...quotes.filter(localQ => 
+      !formattedQuotes.some(serverQ => serverQ.text === localQ.text)
+    )];
+    
+    localStorage.setItem('quotes', JSON.stringify(quotes));
+    syncStatus.textContent = '✅ Sync complete. Server data updated.';
+    showRandomQuote();
+  } catch (error) {
+    syncStatus.textContent = '❌ Sync failed. Check your connection.';
+    console.error(error);
+  }
+}
+
+// --- Upload Local Quotes to Server (Simulation) ---
+async function uploadQuotesToServer() {
+  syncStatus.textContent = 'Uploading local quotes to server...';
+  
+  try {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+      method: 'POST',
+      body: JSON.stringify(quotes),
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (response.ok) {
+      syncStatus.textContent = '✅ Local quotes synced to server successfully!';
+    } else {
+      throw new Error('Server upload failed');
+    }
+  } catch (error) {
+    syncStatus.textContent = '❌ Upload failed.';
+    console.error(error);
+  }
+}
+
+// --- Trigger Sync ---
+syncButton.addEventListener('click', async () => {
+  await uploadQuotesToServer();
+  await fetchQuotesFromServer();
+});
+
+function resolveConflicts(serverQuotes) {
+  let conflicts = 0;
+  const newQuotes = serverQuotes.map(sq => {
+    const conflict = quotes.find(lq => lq.text === sq.text);
+    if (conflict) conflicts++;
+    return sq;
+  });
+  if (conflicts > 0) {
+    alert(`${conflicts} conflicts resolved automatically using server data.`);
+  }
+  return newQuotes;
+}
